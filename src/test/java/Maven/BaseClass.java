@@ -4,8 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
+import org.apache.poi.ss.formula.functions.Value;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -21,16 +25,18 @@ public class BaseClass {
 	driver=new ChromeDriver();
 		driver.get(url);
 	}
-	
-	public static void write(WebElement loc,String txt) {
-		loc.sendKeys(txt);
+	public static void write(WebElement loc,String text) throws Throwable
+	{
+		loc.sendKeys(text);
+		
 	}
 	public static void button(WebElement loc)
 	{
 		loc.click();
 	}
-	public static void getdata(int rw,int cellno) throws Throwable
+	public  static String getdata(int rw,int cellno) throws Throwable
 	{
+		String value=null;
 		File loc=new File("C:\\Users\\vignesh\\eclipse-workspace\\MavenProj\\Excel\\fishpond.xlsx");
 		FileInputStream fis=new FileInputStream(loc);
 		Workbook w=new XSSFWorkbook(fis);
@@ -38,14 +44,25 @@ public class BaseClass {
 		Row r = s.getRow(rw);
 		Cell c = r.getCell(cellno);
 		int type = c.getCellType();
-		System.out.println(type);
 		if(type==1)
 		{
-			
+			value = c.getStringCellValue();
 		}
-		
-		
-		
-		
+		else if(type==0)
+		{
+			if(DateUtil.isCellDateFormatted(c))
+			{
+				Date dateCellValue = c.getDateCellValue();
+				SimpleDateFormat sim=new SimpleDateFormat("dd-MMM-yy");
+				 value = sim.format(dateCellValue);
+			}
+			else
+			{
+				double numericCellValue = c.getNumericCellValue();
+				long l=(long)numericCellValue;
+				 value = String.valueOf(l);
+			}
+		}
+		return value;
 	}
 }
